@@ -8,7 +8,10 @@ import Layout from "@/components/Layout";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import Favorites from "./pages/Favorites";
+import Cart from "./pages/Cart";
 import History from "./pages/History";
+import SectionView from "./pages/SectionView";
+import CategoryView from "./pages/CategoryView";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,9 +27,12 @@ const App = () => (
             <Route element={<Layout />}>
               <Route path="/" element={<Index />} />
               <Route path="/favorites" element={<Favorites />} />
+              <Route path="/cart" element={<Cart />} />
               <Route path="/history" element={<History />} />
             </Route>
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/section/:type" element={<SectionView />} />
+            <Route path="/category/:category" element={<CategoryView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
