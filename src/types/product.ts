@@ -19,3 +19,8 @@ export interface HistoryEntry {
   title: string;
   visitedAt: string;
 }
+
+export interface CartItem {
+  productId: number;
+  quantity: number;
+}

@@ -1,40 +1,28 @@
 import { useApp } from '@/context/AppContext';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/EmptyState';
-import { Search, X, RefreshCw, AlertTriangle, PackageOpen } from 'lucide-react';
+import HeroBanner from '@/components/HeroBanner';
+import SectionHeader from '@/components/SectionHeader';
+import HorizontalProductScroll from '@/components/HorizontalProductScroll';
+import SearchBar from '@/components/SearchBar';
+import { RefreshCw, AlertTriangle, PackageOpen } from 'lucide-react';
 import { SortOption } from '@/types/product';
 
 export default function Index() {
   const {
     filteredProducts, loading, error, searchQuery,
-    setSearchQuery, sortOption, setSortOption, refresh,
+    sortOption, setSortOption, refresh,
+    featuredProducts, topDeals, categories, getProductsByCategory,
   } = useApp();
 
+  const isSearching = searchQuery.trim().length > 0 || sortOption !== 'none';
+
   return (
-    <div className="mx-auto max-w-3xl px-4">
+    <div className="mx-auto max-w-5xl px-4">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/90 pb-3 pt-6 backdrop-blur-md">
         <h1 className="mb-4 text-2xl font-bold text-foreground">Discover</h1>
-
-        {/* Search */}
-        <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="h-10 w-full rounded-xl border border-input bg-card pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        <SearchBar />
 
         {/* Sort */}
         <select
@@ -48,12 +36,12 @@ export default function Index() {
         </select>
       </header>
 
-      {/* Content */}
+      {/* Loading */}
       {loading && (
-        <div className="grid grid-cols-2 gap-4 pt-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="animate-pulse rounded-xl bg-card p-4">
-              <div className="mb-3 h-48 rounded-lg bg-secondary" />
+              <div className="mb-3 h-40 rounded-lg bg-secondary" />
               <div className="mb-2 h-3 w-16 rounded bg-secondary" />
               <div className="mb-2 h-4 w-full rounded bg-secondary" />
               <div className="h-5 w-20 rounded bg-secondary" />
@@ -62,6 +50,7 @@ export default function Index() {
         </div>
       )}
 
+      {/* Error */}
       {error && (
         <div className="flex flex-col items-center gap-4 py-20 text-center">
           <AlertTriangle className="h-12 w-12 text-warning" />
@@ -75,19 +64,65 @@ export default function Index() {
         </div>
       )}
 
-      {!loading && !error && filteredProducts.length === 0 && (
-        <EmptyState
-          icon={PackageOpen}
-          title="No products found"
-          description={searchQuery ? 'Try a different search term.' : 'No products available.'}
-        />
+      {/* Search/Sort results view */}
+      {!loading && !error && isSearching && (
+        <>
+          {filteredProducts.length === 0 ? (
+            <EmptyState icon={PackageOpen} title="No products found" description="Try a different search term." />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4">
+              {filteredProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {!loading && !error && filteredProducts.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 pt-4">
-          {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+      {/* Sectioned Homepage */}
+      {!loading && !error && !isSearching && (
+        <div className="space-y-8 pt-4 pb-4">
+          <HeroBanner />
+
+          {/* Featured */}
+          {featuredProducts.length > 0 && (
+            <section>
+              <SectionHeader title="⭐ Featured Products" viewAllPath="/section/featured" />
+              <HorizontalProductScroll products={featuredProducts} />
+            </section>
+          )}
+
+          {/* Top Deals */}
+          {topDeals.length > 0 && (
+            <section>
+              <SectionHeader title="🔥 Top Deals" viewAllPath="/section/deals" />
+              <HorizontalProductScroll products={topDeals} />
+            </section>
+          )}
+
+          {/* Categories */}
+          {categories.map(cat => {
+            const catProducts = getProductsByCategory(cat);
+            return (
+              <section key={cat}>
+                <SectionHeader
+                  title={cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  viewAllPath={`/category/${encodeURIComponent(cat)}`}
+                />
+                <HorizontalProductScroll products={catProducts.slice(0, 6)} />
+              </section>
+            );
+          })}
+
+          {/* All Products */}
+          <section>
+            <SectionHeader title="All Products" />
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {filteredProducts.map(product => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
         </div>
       )}
     </div>

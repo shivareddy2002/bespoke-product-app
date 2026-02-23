@@ -1,12 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '@/context/AppContext';
-import { ArrowLeft, Heart, ThumbsDown, ExternalLink, Star } from 'lucide-react';
+import { ArrowLeft, Heart, ThumbsDown, ExternalLink, Star, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { formatINR, toINR, getOriginalPrice } from '@/lib/currency';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getProduct, likedIds, dislikedIds, toggleLike, toggleDislike, addHistory } = useApp();
+  const { getProduct, likedIds, dislikedIds, toggleLike, toggleDislike, addHistory, addToCart, getDiscount } = useApp();
 
   const product = getProduct(Number(id));
   if (!product) {
@@ -19,6 +20,7 @@ export default function ProductDetail() {
 
   const isLiked = likedIds.has(product.id);
   const isDisliked = dislikedIds.has(product.id);
+  const discount = getDiscount(product.id);
 
   const openInBrowser = () => {
     addHistory({
@@ -30,12 +32,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="mx-auto max-w-2xl px-4 pb-24 pt-4"
-    >
-      {/* Back button */}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-2xl px-4 pb-24 pt-4">
       <button
         onClick={() => navigate(-1)}
         className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
@@ -43,16 +40,15 @@ export default function ProductDetail() {
         <ArrowLeft className="h-4 w-4" /> Back
       </button>
 
-      {/* Image */}
-      <div className="mb-6 flex h-72 items-center justify-center rounded-2xl bg-card p-8 card-shadow">
-        <img
-          src={product.image}
-          alt={product.title}
-          className="h-full max-h-56 w-auto object-contain"
-        />
+      <div className="mb-6 flex h-72 items-center justify-center rounded-2xl bg-card p-8 card-shadow relative">
+        <img src={product.image} alt={product.title} className="h-full max-h-56 w-auto object-contain" />
+        {discount > 0 && (
+          <span className="absolute left-4 top-4 rounded-lg bg-destructive px-2 py-1 text-xs font-bold text-destructive-foreground">
+            {discount}% OFF
+          </span>
+        )}
       </div>
 
-      {/* Category & Rating */}
       <div className="mb-2 flex items-center gap-3">
         <span className="rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
           {product.category}
@@ -63,22 +59,25 @@ export default function ProductDetail() {
         </span>
       </div>
 
-      {/* Title & Price */}
       <h1 className="mb-2 text-xl font-bold text-foreground">{product.title}</h1>
-      <p className="mb-4 text-2xl font-bold text-primary">${product.price.toFixed(2)}</p>
 
-      {/* Description */}
+      <div className="mb-4 flex items-baseline gap-2">
+        <span className="text-2xl font-bold text-primary">{formatINR(product.price)}</span>
+        {discount > 0 && (
+          <span className="text-sm text-muted-foreground line-through">
+            ₹{toINR(getOriginalPrice(product.price, discount)).toFixed(0)}
+          </span>
+        )}
+      </div>
+
       <p className="mb-6 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
 
-      {/* Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => toggleLike(product.id)}
-          className={`flex h-12 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${
-            isLiked
-              ? 'bg-success text-success-foreground'
-              : 'bg-secondary text-secondary-foreground hover:bg-success/10 hover:text-success'
+          className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${
+            isLiked ? 'bg-success text-success-foreground' : 'bg-secondary text-secondary-foreground hover:bg-success/10 hover:text-success'
           }`}
         >
           <Heart className="h-5 w-5" fill={isLiked ? 'currentColor' : 'none'} />
@@ -88,10 +87,8 @@ export default function ProductDetail() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => toggleDislike(product.id)}
-          className={`flex h-12 flex-1 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${
-            isDisliked
-              ? 'bg-destructive text-destructive-foreground'
-              : 'bg-secondary text-secondary-foreground hover:bg-destructive/10 hover:text-destructive'
+          className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${
+            isDisliked ? 'bg-destructive text-destructive-foreground' : 'bg-secondary text-secondary-foreground hover:bg-destructive/10 hover:text-destructive'
           }`}
         >
           <ThumbsDown className="h-5 w-5" fill={isDisliked ? 'currentColor' : 'none'} />
@@ -99,9 +96,17 @@ export default function ProductDetail() {
         </motion.button>
 
         <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => addToCart(product.id)}
+          className="flex h-12 flex-1 min-w-[120px] items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90"
+        >
+          <ShoppingCart className="h-5 w-5" /> Add to Cart
+        </motion.button>
+
+        <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={openInBrowser}
-          className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:opacity-90"
+          className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-secondary-foreground hover:opacity-90"
           aria-label="Open in browser"
         >
           <ExternalLink className="h-5 w-5" />
