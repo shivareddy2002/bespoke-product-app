@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { ShoppingBag, Heart, Clock, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, Heart, Clock, ShoppingCart, User } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -8,6 +8,7 @@ const tabs = [
   { to: '/favorites', icon: Heart, label: 'Favorites', badgeType: 'likes' as const },
   { to: '/cart', icon: ShoppingCart, label: 'Cart', badgeType: 'cart' as const },
   { to: '/history', icon: Clock, label: 'History' },
+  { to: '/profile', icon: User, label: 'Profile' },
 ];
 
 export default function Layout() {
@@ -35,7 +36,7 @@ export default function Layout() {
                 to={to}
                 end={to === '/'}
                 className={({ isActive }) =>
-                  `relative flex flex-col items-center gap-1 rounded-xl px-4 py-2 text-xs font-medium transition-colors ${
+                  `relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-[11px] font-medium transition-colors ${
                     isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                   }`
                 }
