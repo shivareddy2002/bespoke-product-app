@@ -11,7 +11,9 @@ export interface Product {
   };
 }
 
-export type SortOption = 'none' | 'price-asc' | 'price-desc';
+export type SortOption = 'none' | 'price-asc' | 'price-desc' | 'discount-desc' | 'discount-asc';
+
+export type PriceRange = 'all' | 'under-500' | '500-1500' | 'above-1500';
 
 export interface HistoryEntry {
   url: string;

@@ -32,7 +32,7 @@ export default function ProductDetail() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-2xl px-4 pb-24 pt-4">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-2xl px-4 pb-32 pt-4">
       <button
         onClick={() => navigate(-1)}
         className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
@@ -72,11 +72,11 @@ export default function ProductDetail() {
 
       <p className="mb-6 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
 
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-3 flex-wrap mb-8">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => toggleLike(product.id)}
-          className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${
+          className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors duration-200 ${
             isLiked ? 'bg-success text-success-foreground' : 'bg-secondary text-secondary-foreground hover:bg-success/10 hover:text-success'
           }`}
         >
@@ -87,20 +87,12 @@ export default function ProductDetail() {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => toggleDislike(product.id)}
-          className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors ${
+          className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors duration-200 ${
             isDisliked ? 'bg-destructive text-destructive-foreground' : 'bg-secondary text-secondary-foreground hover:bg-destructive/10 hover:text-destructive'
           }`}
         >
           <ThumbsDown className="h-5 w-5" fill={isDisliked ? 'currentColor' : 'none'} />
           {isDisliked ? 'Disliked' : 'Dislike'}
-        </motion.button>
-
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => addToCart(product.id)}
-          className="flex h-12 flex-1 min-w-[120px] items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90"
-        >
-          <ShoppingCart className="h-5 w-5" /> Add to Cart
         </motion.button>
 
         <motion.button
@@ -111,6 +103,25 @@ export default function ProductDetail() {
         >
           <ExternalLink className="h-5 w-5" />
         </motion.button>
+      </div>
+
+      {/* Sticky Add-to-Cart bar */}
+      <div className="fixed bottom-16 left-0 right-0 z-40 border-t border-border bg-card/95 px-4 py-3 backdrop-blur-md">
+        <div className="mx-auto flex max-w-2xl items-center justify-between">
+          <div>
+            <p className="text-lg font-bold text-primary">{formatINR(product.price)}</p>
+            {discount > 0 && (
+              <p className="text-xs text-success font-medium">{discount}% off</p>
+            )}
+          </div>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => addToCart(product.id)}
+            className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            <ShoppingCart className="h-4 w-4" /> Add to Cart
+          </motion.button>
+        </div>
       </div>
     </motion.div>
   );

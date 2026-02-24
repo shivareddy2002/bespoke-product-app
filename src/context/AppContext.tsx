@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import { Product, SortOption, HistoryEntry, CartItem } from '@/types/product';
+import { Product, SortOption, PriceRange, HistoryEntry, CartItem } from '@/types/product';
 import { fetchProducts } from '@/services/api';
 import {
   loadLiked, saveLiked,
@@ -8,6 +8,7 @@ import {
   loadCart, saveCart,
   loadDiscounts, saveDiscounts,
 } from '@/services/persistence';
+import { toINR, getOriginalPrice } from '@/lib/currency';
 
 interface AppState {
   products: Product[];
@@ -15,6 +16,8 @@ interface AppState {
   error: string | null;
   searchQuery: string;
   sortOption: SortOption;
+  priceRange: PriceRange;
+  selectedCategory: string;
   likedIds: Set<number>;
   dislikedIds: Set<number>;
   history: HistoryEntry[];
@@ -25,6 +28,8 @@ interface AppState {
   categories: string[];
   setSearchQuery: (q: string) => void;
   setSortOption: (s: SortOption) => void;
+  setPriceRange: (r: PriceRange) => void;
+  setSelectedCategory: (c: string) => void;
   toggleLike: (id: number) => void;
   toggleDislike: (id: number) => void;
   addHistory: (entry: Omit<HistoryEntry, 'visitedAt'>) => void;
@@ -35,10 +40,12 @@ interface AppState {
   updateCartQuantity: (productId: number, quantity: number) => void;
   cartCount: number;
   cartTotal: number;
+  cartOriginalTotal: number;
   getDiscount: (id: number) => number;
   getProductsByCategory: (category: string) => Product[];
   featuredProducts: Product[];
   topDeals: Product[];
+  recentlyViewed: Product[];
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -48,7 +55,7 @@ function generateDiscounts(products: Product[], existing: Record<number, number>
   let changed = false;
   products.forEach(p => {
     if (!(p.id in map)) {
-      map[p.id] = Math.floor(Math.random() * 41) + 20; // 20-60
+      map[p.id] = Math.floor(Math.random() * 41) + 20;
       changed = true;
     }
   });
@@ -62,6 +69,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('none');
+  const [priceRange, setPriceRange] = useState<PriceRange>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [likedIds, setLikedIds] = useState<Set<number>>(() => loadLiked());
   const [dislikedIds, setDislikedIds] = useState<Set<number>>(() => loadDisliked());
   const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory());
@@ -127,24 +136,52 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const filteredProducts = useMemo(() => {
     let result = products;
+
+    // Category filter
+    if (selectedCategory !== 'all') {
+      result = result.filter(p => p.category === selectedCategory);
+    }
+
+    // Search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(p => p.title.toLowerCase().includes(q));
     }
+
+    // Price range filter (INR)
+    if (priceRange !== 'all') {
+      result = result.filter(p => {
+        const inr = toINR(p.price);
+        switch (priceRange) {
+          case 'under-500': return inr < 500;
+          case '500-1500': return inr >= 500 && inr <= 1500;
+          case 'above-1500': return inr > 1500;
+          default: return true;
+        }
+      });
+    }
+
+    // Sorting
     if (sortOption === 'price-asc') result = [...result].sort((a, b) => a.price - b.price);
     else if (sortOption === 'price-desc') result = [...result].sort((a, b) => b.price - a.price);
+    else if (sortOption === 'discount-desc') result = [...result].sort((a, b) => (discountMap[b.id] || 0) - (discountMap[a.id] || 0));
+    else if (sortOption === 'discount-asc') result = [...result].sort((a, b) => (discountMap[a.id] || 0) - (discountMap[b.id] || 0));
+
     return result;
-  }, [products, searchQuery, sortOption]);
+  }, [products, searchQuery, sortOption, priceRange, selectedCategory, discountMap]);
 
   const likedProducts = useMemo(() => products.filter(p => likedIds.has(p.id)), [products, likedIds]);
-
   const categories = useMemo(() => [...new Set(products.map(p => p.category))], [products]);
-
   const featuredProducts = useMemo(() => products.filter(p => p.rating.rate >= 4).slice(0, 8), [products]);
-
   const topDeals = useMemo(() => {
     return [...products].sort((a, b) => (discountMap[b.id] || 0) - (discountMap[a.id] || 0)).slice(0, 8);
   }, [products, discountMap]);
+
+  const recentlyViewed = useMemo(() => {
+    const ids = history.map(h => h.productId);
+    const unique = [...new Set(ids)];
+    return unique.slice(0, 10).map(id => products.find(p => p.id === id)).filter(Boolean) as Product[];
+  }, [history, products]);
 
   const getProduct = useCallback((id: number) => products.find(p => p.id === id), [products]);
   const getDiscount = useCallback((id: number) => discountMap[id] || 0, [discountMap]);
@@ -158,14 +195,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }, 0);
   }, [cartItems, products]);
 
+  const cartOriginalTotal = useMemo(() => {
+    return cartItems.reduce((s, c) => {
+      const p = products.find(pr => pr.id === c.productId);
+      if (!p) return s;
+      const discount = discountMap[p.id] || 0;
+      const original = getOriginalPrice(p.price, discount);
+      return s + original * c.quantity;
+    }, 0);
+  }, [cartItems, products, discountMap]);
+
   const value: AppState = {
-    products, loading, error, searchQuery, sortOption,
+    products, loading, error, searchQuery, sortOption, priceRange, selectedCategory,
     likedIds, dislikedIds, history, filteredProducts, likedProducts,
-    cartItems, discountMap, categories, featuredProducts, topDeals,
-    setSearchQuery, setSortOption, toggleLike, toggleDislike,
+    cartItems, discountMap, categories, featuredProducts, topDeals, recentlyViewed,
+    setSearchQuery, setSortOption, setPriceRange, setSelectedCategory,
+    toggleLike, toggleDislike,
     addHistory, refresh: loadProductsData, getProduct,
     addToCart, removeFromCart, updateCartQuantity,
-    cartCount, cartTotal, getDiscount, getProductsByCategory,
+    cartCount, cartTotal, cartOriginalTotal, getDiscount, getProductsByCategory,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

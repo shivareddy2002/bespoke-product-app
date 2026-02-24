@@ -5,35 +5,34 @@ import HeroBanner from '@/components/HeroBanner';
 import SectionHeader from '@/components/SectionHeader';
 import HorizontalProductScroll from '@/components/HorizontalProductScroll';
 import SearchBar from '@/components/SearchBar';
+import FilterToolbar from '@/components/FilterToolbar';
 import { RefreshCw, AlertTriangle, PackageOpen } from 'lucide-react';
-import { SortOption } from '@/types/product';
+import { motion } from 'framer-motion';
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.05, duration: 0.3, ease: 'easeOut' as const },
+  }),
+};
 
 export default function Index() {
   const {
     filteredProducts, loading, error, searchQuery,
-    sortOption, setSortOption, refresh,
-    featuredProducts, topDeals, categories, getProductsByCategory,
+    sortOption, priceRange, selectedCategory, refresh,
+    featuredProducts, topDeals, recentlyViewed, categories, getProductsByCategory,
   } = useApp();
 
-  const isSearching = searchQuery.trim().length > 0 || sortOption !== 'none';
+  const isFiltering = searchQuery.trim().length > 0 || sortOption !== 'none' || priceRange !== 'all' || selectedCategory !== 'all';
 
   return (
     <div className="mx-auto max-w-5xl px-4">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/90 pb-3 pt-6 backdrop-blur-md">
-        <h1 className="mb-4 text-2xl font-bold text-foreground">Discover</h1>
+      <header className="sticky top-0 z-40 bg-background/90 pb-3 pt-6 backdrop-blur-md space-y-3">
+        <h1 className="text-2xl font-bold text-foreground">Discover</h1>
         <SearchBar />
-
-        {/* Sort */}
-        <select
-          value={sortOption}
-          onChange={e => setSortOption(e.target.value as SortOption)}
-          className="h-9 rounded-lg border border-input bg-card px-3 text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="none">Default order</option>
-          <option value="price-asc">Price: Low → High</option>
-          <option value="price-desc">Price: High → Low</option>
-        </select>
+        <FilterToolbar />
       </header>
 
       {/* Loading */}
@@ -64,15 +63,17 @@ export default function Index() {
         </div>
       )}
 
-      {/* Search/Sort results view */}
-      {!loading && !error && isSearching && (
+      {/* Filtered results */}
+      {!loading && !error && isFiltering && (
         <>
           {filteredProducts.length === 0 ? (
-            <EmptyState icon={PackageOpen} title="No products found" description="Try a different search term." />
+            <EmptyState icon={PackageOpen} title="No products found" description="Try different filters or search term." />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4">
-              {filteredProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 pb-4">
+              {filteredProducts.map((product, i) => (
+                <motion.div key={product.id} custom={i} initial="hidden" animate="visible" variants={cardVariants}>
+                  <ProductCard product={product} />
+                </motion.div>
               ))}
             </div>
           )}
@@ -80,9 +81,17 @@ export default function Index() {
       )}
 
       {/* Sectioned Homepage */}
-      {!loading && !error && !isSearching && (
+      {!loading && !error && !isFiltering && (
         <div className="space-y-8 pt-4 pb-4">
           <HeroBanner />
+
+          {/* Recently Viewed */}
+          {recentlyViewed.length > 0 && (
+            <section>
+              <SectionHeader title="🕐 Recently Viewed" />
+              <HorizontalProductScroll products={recentlyViewed} />
+            </section>
+          )}
 
           {/* Featured */}
           {featuredProducts.length > 0 && (
@@ -118,8 +127,10 @@ export default function Index() {
           <section>
             <SectionHeader title="All Products" />
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {filteredProducts.map(product => (
-                <ProductCard key={product.id} product={product} />
+              {filteredProducts.map((product, i) => (
+                <motion.div key={product.id} custom={i} initial="hidden" animate="visible" variants={cardVariants}>
+                  <ProductCard product={product} />
+                </motion.div>
               ))}
             </div>
           </section>
