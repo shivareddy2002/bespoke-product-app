@@ -1,4 +1,5 @@
 import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import EmptyState from '@/components/EmptyState';
 import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { formatINR, toINR, getOriginalPrice } from '@/lib/currency';
@@ -7,9 +8,21 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Cart() {
   const { cartItems, getProduct, updateCartQuantity, removeFromCart, cartTotal, cartOriginalTotal, getDiscount } = useApp();
+  const { placeOrder } = useAuth();
   const navigate = useNavigate();
 
   const savingsUsd = cartOriginalTotal - cartTotal;
+
+  const handleCheckout = () => {
+    const orderItems = cartItems.map(c => {
+      const p = getProduct(c.productId);
+      return { productId: c.productId, quantity: c.quantity, priceUsd: p?.price || 0 };
+    });
+    placeOrder(orderItems, cartTotal);
+    // Clear cart
+    cartItems.forEach(c => removeFromCart(c.productId));
+    navigate('/order-success');
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-4">
@@ -112,9 +125,13 @@ export default function Cart() {
                   >
                     Continue Shopping
                   </button>
-                  <button className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
-                    Checkout
-                  </button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleCheckout}
+                    className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
+                  >
+                    Place Order
+                  </motion.button>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { useApp } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/EmptyState';
 import HeroBanner from '@/components/HeroBanner';
@@ -23,14 +24,19 @@ export default function Index() {
     sortOption, priceRange, selectedCategory, refresh,
     featuredProducts, topDeals, recentlyViewed, categories, getProductsByCategory,
   } = useApp();
+  const { user } = useAuth();
 
   const isFiltering = searchQuery.trim().length > 0 || sortOption !== 'none' || priceRange !== 'all' || selectedCategory !== 'all';
+
+  const greeting = user?.isGuest ? 'Welcome, Guest 👋' :
+    user?.email ? `Welcome back, ${user.email.split('@')[0]} 👋` :
+    user?.phone ? `Welcome back 👋` : 'Discover';
 
   return (
     <div className="mx-auto max-w-5xl px-4">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/90 pb-3 pt-6 backdrop-blur-md space-y-3">
-        <h1 className="text-2xl font-bold text-foreground">Discover</h1>
+        <h1 className="text-2xl font-bold text-foreground">{greeting}</h1>
         <SearchBar />
         <FilterToolbar />
       </header>
