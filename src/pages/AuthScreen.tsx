@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
-import { Mail, Phone, UserCircle, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Phone, ArrowLeft, ShoppingBag } from 'lucide-react';
 
-type View = 'options' | 'email' | 'phone';
+type View = 'options' | 'email' | 'phone' | 'otp';
 
 export default function AuthScreen() {
-  const { loginWithEmail, loginWithPhone, continueAsGuest } = useAuth();
+  const { loginWithEmail, loginWithPhone } = useAuth();
+  const navigate = useNavigate();
   const [view, setView] = useState<View>('options');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [otpInput, setOtpInput] = useState('');
   const [error, setError] = useState('');
 
   const handleEmail = () => {
@@ -21,18 +23,23 @@ export default function AuthScreen() {
     if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
     const result = loginWithEmail(email, password);
     if (!result.success) setError(result.error || 'Login failed');
+    else navigate('/');
   };
 
-  const handlePhone = () => {
+  const handleSendOtp = () => {
     setError('');
-    if (!otpSent) {
-      if (!/^\+?\d{7,15}$/.test(phone.replace(/\s/g, ''))) { setError('Enter a valid phone number'); return; }
-      setOtpSent(true);
-      return;
-    }
-    if (otp.length < 4) { setError('Enter a valid OTP'); return; }
+    if (!/^\+?\d{7,15}$/.test(phone.replace(/\s/g, ''))) { setError('Enter a valid phone number'); return; }
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    setGeneratedOtp(otp);
+    setView('otp');
+  };
+
+  const handleVerifyOtp = () => {
+    setError('');
+    if (otpInput !== generatedOtp) { setError('Incorrect OTP. Please try again.'); return; }
     const result = loginWithPhone(phone.replace(/\s/g, ''));
     if (!result.success) setError(result.error || 'Login failed');
+    else navigate('/');
   };
 
   const slideIn = {
@@ -51,32 +58,21 @@ export default function AuthScreen() {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                 <ShoppingBag className="h-8 w-8" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">FakeStore</h1>
+              <h1 className="text-2xl font-bold text-foreground">Beespoke</h1>
               <p className="text-sm text-muted-foreground">Shop smart. Save more.</p>
             </div>
-
             <div className="space-y-3">
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => { setView('email'); setError(''); }}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
+              <motion.button whileTap={{ scale: 0.97 }} onClick={() => { setView('email'); setError(''); }}
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
                 <Mail className="h-5 w-5" /> Continue with Email
               </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => { setView('phone'); setError(''); setOtpSent(false); }}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-secondary py-3.5 text-sm font-semibold text-secondary-foreground hover:bg-accent"
-              >
+              <motion.button whileTap={{ scale: 0.97 }} onClick={() => { setView('phone'); setError(''); }}
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-secondary py-3.5 text-sm font-semibold text-secondary-foreground hover:bg-accent">
                 <Phone className="h-5 w-5" /> Continue with Phone
               </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={continueAsGuest}
-                className="flex w-full items-center justify-center gap-3 rounded-xl border border-border py-3.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/20"
-              >
-                <UserCircle className="h-5 w-5" /> Continue as Guest
-              </motion.button>
+              <button onClick={() => navigate('/')} className="w-full text-center text-sm text-muted-foreground hover:text-foreground mt-2">
+                ← Continue browsing without login
+              </button>
             </div>
           </motion.div>
         )}
@@ -91,67 +87,55 @@ export default function AuthScreen() {
               <p className="text-sm text-muted-foreground">Sign in or create a new account</p>
             </div>
             <div className="space-y-3">
-              <input
-                type="email"
-                placeholder="Email address"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="h-11 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              <input
-                type="password"
-                placeholder="Password (min 6 characters)"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="h-11 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
+              <input type="email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)}
+                className="h-11 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
+              <input type="password" placeholder="Password (min 6 characters)" value={password} onChange={e => setPassword(e.target.value)}
+                className="h-11 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
               {error && <p className="text-xs font-medium text-destructive">{error}</p>}
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={handleEmail}
-                className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
-                Continue
-              </motion.button>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={handleEmail}
+                className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">Continue</motion.button>
             </div>
           </motion.div>
         )}
 
         {view === 'phone' && (
           <motion.div key="phone" {...slideIn} className="w-full max-w-sm space-y-5">
-            <button onClick={() => { setView('options'); setOtpSent(false); }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+            <button onClick={() => setView('options')} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <ArrowLeft className="h-4 w-4" /> Back
             </button>
             <div>
               <h2 className="text-xl font-bold text-foreground">Phone Login</h2>
-              <p className="text-sm text-muted-foreground">{otpSent ? 'Enter the OTP sent to your phone' : 'Enter your phone number'}</p>
+              <p className="text-sm text-muted-foreground">Enter your phone number to receive OTP</p>
             </div>
             <div className="space-y-3">
-              <input
-                type="tel"
-                placeholder="+91 9876543210"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                disabled={otpSent}
-                className="h-11 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
-              />
-              {otpSent && (
-                <input
-                  type="text"
-                  placeholder="Enter OTP (any 4+ digits)"
-                  value={otp}
-                  onChange={e => setOtp(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                />
-              )}
+              <input type="tel" placeholder="+91 9876543210" value={phone} onChange={e => setPhone(e.target.value)}
+                className="h-11 w-full rounded-xl border border-input bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
               {error && <p className="text-xs font-medium text-destructive">{error}</p>}
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={handlePhone}
-                className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
-              >
-                {otpSent ? 'Verify OTP' : 'Send OTP'}
-              </motion.button>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={handleSendOtp}
+                className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">Send OTP</motion.button>
+            </div>
+          </motion.div>
+        )}
+
+        {view === 'otp' && (
+          <motion.div key="otp" {...slideIn} className="w-full max-w-sm space-y-5">
+            <button onClick={() => { setView('phone'); setOtpInput(''); setError(''); }} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4" /> Change number
+            </button>
+            <div>
+              <h2 className="text-xl font-bold text-foreground">Verify OTP</h2>
+              <p className="text-sm text-muted-foreground">Enter the 6-digit code sent to {phone}</p>
+              <p className="mt-2 rounded-lg bg-accent px-3 py-2 text-xs font-mono text-accent-foreground text-center">
+                Demo OTP: <span className="font-bold tracking-widest">{generatedOtp}</span>
+              </p>
+            </div>
+            <div className="space-y-3">
+              <input type="text" maxLength={6} placeholder="Enter 6-digit OTP" value={otpInput}
+                onChange={e => setOtpInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className="h-11 w-full rounded-xl border border-input bg-card px-4 text-center text-lg font-bold tracking-[0.3em] text-foreground placeholder:text-muted-foreground placeholder:tracking-normal placeholder:text-sm placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-ring" />
+              {error && <p className="text-xs font-medium text-destructive">{error}</p>}
+              <motion.button whileTap={{ scale: 0.97 }} onClick={handleVerifyOtp}
+                className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">Verify & Login</motion.button>
             </div>
           </motion.div>
         )}
