@@ -6,10 +6,19 @@ import { ArrowLeft } from 'lucide-react';
 export default function SectionView() {
   const { type } = useParams<{ type: string }>();
   const navigate = useNavigate();
-  const { featuredProducts, topDeals } = useApp();
+  const { featuredProducts, topDeals, trendingProducts, bestSellers, recommendedProducts } = useApp();
 
-  const title = type === 'featured' ? '⭐ Featured Products' : '🔥 Top Deals';
-  const products = type === 'featured' ? featuredProducts : topDeals;
+  const sectionMap: Record<string, { title: string; products: typeof featuredProducts }> = {
+    featured: { title: '⭐ Featured Products', products: featuredProducts },
+    deals: { title: '🔥 Top Deals', products: topDeals },
+    trending: { title: '📈 Trending Now', products: trendingProducts },
+    bestsellers: { title: '🏆 Best Sellers', products: bestSellers },
+    recommended: { title: '💡 Recommended for You', products: recommendedProducts },
+  };
+
+  const section = sectionMap[type || ''] || { title: 'Products', products: [] };
+  const title = section.title;
+  const products = section.products;
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-4">

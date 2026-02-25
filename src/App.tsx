@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "@/context/AppContext";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
 import Layout from "@/components/Layout";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
@@ -20,29 +20,6 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function AppRoutes() {
-  const { user } = useAuth();
-
-  if (!user) return <AuthScreen />;
-
-  return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Index />} />
-        <Route path="/favorites" element={<Favorites />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/profile" element={<Profile />} />
-      </Route>
-      <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/section/:type" element={<SectionView />} />
-      <Route path="/category/:category" element={<CategoryView />} />
-      <Route path="/order-success" element={<OrderSuccess />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -51,7 +28,21 @@ const App = () => (
       <AuthProvider>
         <AppProvider>
           <BrowserRouter>
-            <AppRoutes />
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/profile" element={<Profile />} />
+              </Route>
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/section/:type" element={<SectionView />} />
+              <Route path="/category/:category" element={<CategoryView />} />
+              <Route path="/login" element={<AuthScreen />} />
+              <Route path="/order-success" element={<OrderSuccess />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </BrowserRouter>
         </AppProvider>
       </AuthProvider>

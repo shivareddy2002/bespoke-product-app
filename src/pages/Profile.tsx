@@ -3,9 +3,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useApp } from '@/context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { LogOut, Mail, Phone, UserCircle, MapPin, Package, Plus, Trash2, ChevronRight } from 'lucide-react';
+import { LogOut, Mail, Phone, UserCircle, MapPin, Package, Plus, Trash2, LogIn } from 'lucide-react';
 import { formatINR } from '@/lib/currency';
-import EmptyState from '@/components/EmptyState';
 
 export default function Profile() {
   const { user, logout, addresses, addAddress, removeAddress, orders, convertGuest } = useAuth();
@@ -20,7 +19,24 @@ export default function Profile() {
   const [convPass, setConvPass] = useState('');
   const [convError, setConvError] = useState('');
 
-  if (!user) return null;
+  // Not logged in state
+  if (!user) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 pb-24">
+        <header className="pb-4 pt-6">
+          <h1 className="text-2xl font-bold text-foreground">Profile</h1>
+        </header>
+        <div className="flex flex-col items-center gap-4 py-16 text-center">
+          <UserCircle className="h-16 w-16 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Sign in to manage your profile, orders, and addresses.</p>
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate('/login')}
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90">
+            <LogIn className="h-4 w-4" /> Sign In
+          </motion.button>
+        </div>
+      </div>
+    );
+  }
 
   const handleAddAddress = () => {
     if (!addrName.trim() || !addrPhone.trim() || !addrLine.trim()) return;
@@ -61,34 +77,23 @@ export default function Profile() {
             <p className="text-sm font-semibold text-card-foreground">
               {user.isGuest ? 'Guest User' : user.email || user.phone}
             </p>
-            <p className="text-xs text-muted-foreground capitalize">
-              {user.loginType} account
-            </p>
+            <p className="text-xs text-muted-foreground capitalize">{user.loginType} account</p>
           </div>
         </div>
 
         {user.isGuest && !showConvert && (
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setShowConvert(true)}
-            className="mt-3 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
-          >
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowConvert(true)}
+            className="mt-3 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90">
             Create Account
           </motion.button>
         )}
 
         {showConvert && (
           <div className="mt-3 space-y-2">
-            <input
-              type="email" placeholder="Email" value={convEmail}
-              onChange={e => setConvEmail(e.target.value)}
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-            <input
-              type="password" placeholder="Password (min 6)" value={convPass}
-              onChange={e => setConvPass(e.target.value)}
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+            <input type="email" placeholder="Email" value={convEmail} onChange={e => setConvEmail(e.target.value)}
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input type="password" placeholder="Password (min 6)" value={convPass} onChange={e => setConvPass(e.target.value)}
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             {convError && <p className="text-xs text-destructive">{convError}</p>}
             <div className="flex gap-2">
               <button onClick={handleConvert} className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground">Convert</button>
@@ -104,10 +109,8 @@ export default function Profile() {
           <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" /> Saved Addresses
           </h2>
-          <button
-            onClick={() => setShowAddressForm(!showAddressForm)}
-            className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-          >
+          <button onClick={() => setShowAddressForm(!showAddressForm)}
+            className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
             <Plus className="h-3.5 w-3.5" /> Add
           </button>
         </div>
@@ -156,9 +159,7 @@ export default function Profile() {
             {orders.map(order => (
               <div key={order.id} className="rounded-xl bg-card p-3 card-shadow">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(order.date).toLocaleDateString()}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{new Date(order.date).toLocaleDateString()}</p>
                   <p className="text-sm font-bold text-primary">{formatINR(order.totalUsd)}</p>
                 </div>
                 <div className="space-y-1">
@@ -180,11 +181,8 @@ export default function Profile() {
       </div>
 
       {/* Logout */}
-      <motion.button
-        whileTap={{ scale: 0.97 }}
-        onClick={handleLogout}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive py-3 text-sm font-semibold text-destructive hover:bg-destructive/10"
-      >
+      <motion.button whileTap={{ scale: 0.97 }} onClick={handleLogout}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive py-3 text-sm font-semibold text-destructive hover:bg-destructive/10">
         <LogOut className="h-4 w-4" /> Logout
       </motion.button>
     </div>

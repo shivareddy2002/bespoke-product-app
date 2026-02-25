@@ -25,7 +25,7 @@ export default function Cart() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4">
+    <div className="mx-auto max-w-3xl px-4 pb-24">
       <header className="pb-3 pt-6">
         <h1 className="text-2xl font-bold text-foreground">Cart</h1>
         <p className="text-sm text-muted-foreground">{cartItems.length} items</p>

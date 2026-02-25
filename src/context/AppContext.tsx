@@ -46,6 +46,9 @@ interface AppState {
   featuredProducts: Product[];
   topDeals: Product[];
   recentlyViewed: Product[];
+  trendingProducts: Product[];
+  bestSellers: Product[];
+  recommendedProducts: Product[];
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -177,6 +180,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return [...products].sort((a, b) => (discountMap[b.id] || 0) - (discountMap[a.id] || 0)).slice(0, 8);
   }, [products, discountMap]);
 
+  const trendingProducts = useMemo(() => {
+    return [...products].sort((a, b) => b.rating.count - a.rating.count).slice(0, 8);
+  }, [products]);
+
+  const bestSellers = useMemo(() => {
+    return [...products].sort((a, b) => (b.rating.rate * b.rating.count) - (a.rating.rate * a.rating.count)).slice(0, 8);
+  }, [products]);
+
+  const recommendedProducts = useMemo(() => {
+    // Shuffle-like based on a mix of rating and price
+    return [...products].sort((a, b) => (a.price * a.rating.rate) - (b.price * b.rating.rate)).slice(0, 8);
+  }, [products]);
+
   const recentlyViewed = useMemo(() => {
     const ids = history.map(h => h.productId);
     const unique = [...new Set(ids)];
@@ -209,6 +225,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     products, loading, error, searchQuery, sortOption, priceRange, selectedCategory,
     likedIds, dislikedIds, history, filteredProducts, likedProducts,
     cartItems, discountMap, categories, featuredProducts, topDeals, recentlyViewed,
+    trendingProducts, bestSellers, recommendedProducts,
     setSearchQuery, setSortOption, setPriceRange, setSelectedCategory,
     toggleLike, toggleDislike,
     addHistory, refresh: loadProductsData, getProduct,
