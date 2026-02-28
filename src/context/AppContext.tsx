@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { Product, SortOption, PriceRange, HistoryEntry, CartItem } from '@/types/product';
 import { fetchProducts } from '@/services/api';
 import {
@@ -76,7 +77,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [likedIds, setLikedIds] = useState<Set<number>>(() => loadLiked());
   const [dislikedIds, setDislikedIds] = useState<Set<number>>(() => loadDisliked());
-  const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory());
+  const { user } = useAuth();
+  const currentUserId = user?.id;
+  const prevUserIdRef = useRef<string | undefined>(currentUserId);
+  const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory(currentUserId));
   const [cartItems, setCartItems] = useState<CartItem[]>(() => loadCart());
   const [discountMap, setDiscountMap] = useState<Record<number, number>>(() => loadDiscounts());
 
@@ -97,8 +101,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { loadProductsData(); }, [loadProductsData]);
   useEffect(() => { saveLiked(likedIds); }, [likedIds]);
   useEffect(() => { saveDisliked(dislikedIds); }, [dislikedIds]);
-  useEffect(() => { saveHistory(history); }, [history]);
+  useEffect(() => { saveHistory(history, currentUserId); }, [history, currentUserId]);
   useEffect(() => { saveCart(cartItems); }, [cartItems]);
+
+  // Reload history when user changes
+  useEffect(() => {
+    if (prevUserIdRef.current !== currentUserId) {
+      setHistory(loadHistory(currentUserId));
+      prevUserIdRef.current = currentUserId;
+    }
+  }, [currentUserId]);
 
   const toggleLike = useCallback((id: number) => {
     setLikedIds(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
