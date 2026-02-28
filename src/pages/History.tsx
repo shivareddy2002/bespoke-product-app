@@ -1,10 +1,12 @@
 import { useApp } from '@/context/AppContext';
+import { useNavigate } from 'react-router-dom';
 import EmptyState from '@/components/EmptyState';
 import { Clock, ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function History() {
   const { history } = useApp();
+  const navigate = useNavigate();
 
   return (
     <div className="mx-auto max-w-3xl px-4">
@@ -21,23 +23,40 @@ export default function History() {
         />
       ) : (
         <div className="space-y-2 pt-2">
-          {history.map((entry, i) => (
-            <a
-              key={`${entry.productId}-${i}`}
-              href={entry.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 rounded-xl bg-card p-4 card-shadow transition-shadow hover:card-shadow-hover"
-            >
-              <div className="flex-1 overflow-hidden">
-                <p className="truncate text-sm font-medium text-card-foreground">{entry.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(entry.visitedAt), { addSuffix: true })}
-                </p>
-              </div>
-              <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
-            </a>
-          ))}
+          {history.map((entry, i) => {
+            const isInternal = entry.url.startsWith('/product/');
+            return isInternal ? (
+              <button
+                key={`${entry.productId}-${i}`}
+                onClick={() => navigate(entry.url)}
+                className="flex w-full items-center gap-3 rounded-xl bg-card p-4 card-shadow transition-shadow hover:card-shadow-hover text-left"
+              >
+                <div className="flex-1 overflow-hidden">
+                  <p className="truncate text-sm font-medium text-card-foreground">{entry.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(entry.visitedAt), { addSuffix: true })}
+                  </p>
+                </div>
+                <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
+              </button>
+            ) : (
+              <a
+                key={`${entry.productId}-${i}`}
+                href={entry.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl bg-card p-4 card-shadow transition-shadow hover:card-shadow-hover"
+              >
+                <div className="flex-1 overflow-hidden">
+                  <p className="truncate text-sm font-medium text-card-foreground">{entry.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(entry.visitedAt), { addSuffix: true })}
+                  </p>
+                </div>
+                <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
+              </a>
+            );
+          })}
         </div>
       )}
     </div>
