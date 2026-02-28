@@ -101,3 +101,108 @@ flowchart LR
     C --> D[Search]
     D --> E[Sorting]
 ```
+### 4️⃣ Cart Logic
+
+- Quantity aggregation  
+- Increment / decrement controls  
+- Subtotal & savings calculation  
+- Discount mapping per product  
+
+---
+
+### 5️⃣ Persistence
+
+Stored locally:
+
+- cart  
+- favorites  
+- browsing history  
+- discounts  
+- user session  
+
+State is restored automatically on next app launch.
+
+---
+
+## 🧩 Reusable Components
+
+- **ProductCard** → used across all product grids  
+- **SectionContainer** → standardizes homepage sections  
+- **Toolbar** → filtering & sorting controls  
+- **GridLayout** → responsive column layout  
+
+---
+
+## 📱 Responsive Layout
+
+- Mobile → 2 columns  
+- Tablet/Desktop → 3 columns  
+
+Adaptive spacing and equal card heights ensure consistent UI across devices.
+
+---
+
+## ⚡ Performance
+
+- Single dataset reused across screens  
+- Derived filtered lists (no duplication)  
+- ID-based favorites lookup  
+- Cached discounts per product  
+- Persistence loaded once at startup  
+
+---
+
+## 📈 Scalability
+
+Architecture supports future expansion:
+
+- Backend authentication  
+- Cloud data sync  
+- Checkout & payments  
+- Order management  
+- Reviews & ratings  
+- Recommendation engine  
+
+---
+
+## 🧪 Testing Strategy
+
+Business logic separated from UI enables testing of:
+
+- cart calculations  
+- filtering pipeline  
+- discount logic  
+- authentication state  
+
+---
+
+# ✅ Conclusion
+
+The **Bespoke Product App** demonstrates how a modern mobile commerce experience can be built using a clean architecture, centralized state management, and persistent user data — without requiring a backend.
+
+The project showcases production-style UI patterns, scalable data flow, and reusable component design, making it a strong foundation for real-world e-commerce applications.
+
+---
+
+## 👨‍💻 Author  
+
+**Lomada Siva Gangi Reddy**  
+- 🎓 B.Tech CSE (Data Science), RGMCET (2021–2025)  
+- 💡 Interests: Python | Machine Learning | Deep Learning | Data Science  
+- 📍 Open to **Internships & Job Offers**
+
+ **Contact Me**:  
+
+- 📧 **Email**: lomadasivagangireddy3@gmail.com  
+- 📞 **Phone**: 9346493592  
+- 💼 [LinkedIn](https://www.linkedin.com/in/lomada-siva-gangi-reddy-a64197280/)  🌐 [GitHub](https://github.com/shivareddy2002)  🚀 [Portfolio](https://lsgr-portfolio-pulse.lovable.app/)
+
+---
+
+<p align="center">
+  ⭐ If you found this project useful, consider starring the repository!
+</p>
+
+<p align="center">
+  Built with ❤️ using Flutter
+</p>
