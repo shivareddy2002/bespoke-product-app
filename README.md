@@ -198,7 +198,6 @@ The project showcases production-style UI patterns, scalable data flow, and reus
 - 💼 [LinkedIn](https://www.linkedin.com/in/lomada-siva-gangi-reddy-a64197280/)  🌐 [GitHub](https://github.com/shivareddy2002)  🚀 [Portfolio](https://lsgr-portfolio-pulse.lovable.app/)
 
 ---
-
 <p align="center">
   ⭐ If you found this project useful, consider starring the repository!
 </p>
@@ -206,3 +205,8 @@ The project showcases production-style UI patterns, scalable data flow, and reus
 <p align="center">
   Built with ❤️ using Flutter
 </p>
+
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6A11CB,150:2575FC&height=150&section=footer" />
+</p>
+
