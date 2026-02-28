@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11998e,100:38ef7d&height=180&section=header&text=Bespoke%20Product%20App%20-%20Modern%20Commerce%20Experience&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=35" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11998e,100:38ef7d&height=180&section=header&text=Bespoke%20Product%20App&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=35" />
 </p>
 
 A modern **API-driven e-commerce application** that simulates a real mobile shopping experience with product discovery, filtering, cart management, optional authentication, and persistent user state.
