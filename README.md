@@ -199,14 +199,6 @@ The project showcases production-style UI patterns, scalable data flow, and reus
 
 ---
 <p align="center">
-  ⭐ If you found this project useful, consider starring the repository!
-</p>
-
-<p align="center">
-  Built with ❤️ using Flutter
-</p>
-
-<p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6A11CB,150:2575FC&height=150&section=footer" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:6A11CB,150:2575FC&height=170&section=footer&text=⭐%20If%20you%20found%20this%20project%20useful,%20consider%20starring!%20|%20Built%20with%20❤️%20using%20Flutter&fontSize=16&fontColor=ffffff&animation=fadeIn" />
 </p>
 
