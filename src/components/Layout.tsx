@@ -45,12 +45,15 @@ export default function Layout() {
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4">
           {/* Logo */}
-          <NavLink to="/" className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={() => { navigate('/'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className="flex items-center gap-2 flex-shrink-0"
+          >
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
               B
             </div>
             <span className="hidden sm:block text-base font-bold text-foreground">Beespoke</span>
-          </NavLink>
+          </button>
 
           {/* Search - Desktop */}
           <div className="hidden sm:block flex-1 max-w-xl mx-auto relative" ref={searchRef}>

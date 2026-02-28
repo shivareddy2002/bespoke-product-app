@@ -3,13 +3,33 @@ import { useApp } from '@/context/AppContext';
 import { ArrowLeft, Heart, ThumbsDown, ExternalLink, Star, ShoppingCart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatINR, toINR, getOriginalPrice } from '@/lib/currency';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import LoginModal from '@/components/LoginModal';
+import { useEffect } from 'react';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProduct, likedIds, dislikedIds, toggleLike, toggleDislike, addHistory, addToCart, getDiscount } = useApp();
+  const { showLogin, requireAuth, onLoginSuccess, onLoginClose } = useRequireAuth();
 
   const product = getProduct(Number(id));
+
+  const isLiked = product ? likedIds.has(product.id) : false;
+  const isDisliked = product ? dislikedIds.has(product.id) : false;
+  const discount = product ? getDiscount(product.id) : 0;
+
+  // Track product view in history
+  useEffect(() => {
+    if (product) {
+      addHistory({
+        url: `/product/${product.id}`,
+        productId: product.id,
+        title: product.title,
+      });
+    }
+  }, [product?.id]);
+
   if (!product) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -17,10 +37,6 @@ export default function ProductDetail() {
       </div>
     );
   }
-
-  const isLiked = likedIds.has(product.id);
-  const isDisliked = dislikedIds.has(product.id);
-  const discount = getDiscount(product.id);
 
   const openInBrowser = () => {
     addHistory({
@@ -32,6 +48,7 @@ export default function ProductDetail() {
   };
 
   return (
+    <>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mx-auto max-w-2xl px-4 pb-32 pt-4">
       <button
         onClick={() => navigate(-1)}
@@ -75,7 +92,7 @@ export default function ProductDetail() {
       <div className="flex items-center gap-3 flex-wrap mb-8">
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => toggleLike(product.id)}
+          onClick={() => requireAuth(() => toggleLike(product.id))}
           className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors duration-200 ${
             isLiked ? 'bg-success text-success-foreground' : 'bg-secondary text-secondary-foreground hover:bg-success/10 hover:text-success'
           }`}
@@ -86,7 +103,7 @@ export default function ProductDetail() {
 
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={() => toggleDislike(product.id)}
+          onClick={() => requireAuth(() => toggleDislike(product.id))}
           className={`flex h-12 flex-1 min-w-[100px] items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors duration-200 ${
             isDisliked ? 'bg-destructive text-destructive-foreground' : 'bg-secondary text-secondary-foreground hover:bg-destructive/10 hover:text-destructive'
           }`}
@@ -116,7 +133,7 @@ export default function ProductDetail() {
           </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => addToCart(product.id)}
+            onClick={() => requireAuth(() => addToCart(product.id))}
             className="flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
             <ShoppingCart className="h-4 w-4" /> Add to Cart
@@ -124,5 +141,7 @@ export default function ProductDetail() {
         </div>
       </div>
     </motion.div>
+    <LoginModal open={showLogin} onClose={onLoginClose} onSuccess={onLoginSuccess} />
+    </>
   );
 }

@@ -1,27 +1,59 @@
 import { useApp } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 import EmptyState from '@/components/EmptyState';
-import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, MapPin } from 'lucide-react';
 import { formatINR, toINR, getOriginalPrice } from '@/lib/currency';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
+import LoginModal from '@/components/LoginModal';
+import { useState } from 'react';
 
 export default function Cart() {
   const { cartItems, getProduct, updateCartQuantity, removeFromCart, cartTotal, cartOriginalTotal, getDiscount } = useApp();
-  const { placeOrder } = useAuth();
+  const { user, placeOrder, addresses, addAddress } = useAuth();
   const navigate = useNavigate();
+  const { showLogin, requireAuth, onLoginSuccess, onLoginClose } = useRequireAuth();
+  const [showAddressPrompt, setShowAddressPrompt] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newPhone, setNewPhone] = useState('');
+  const [newAddr, setNewAddr] = useState('');
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
   const savingsUsd = cartOriginalTotal - cartTotal;
 
-  const handleCheckout = () => {
+  const proceedToCheckout = () => {
+    if (addresses.length === 0) {
+      setShowAddressPrompt(true);
+      return;
+    }
+    if (!selectedAddressId && addresses.length > 0) {
+      setSelectedAddressId(addresses[0].id);
+    }
+    doPlaceOrder();
+  };
+
+  const handleSaveAddress = () => {
+    if (!newName.trim() || !newPhone.trim() || !newAddr.trim()) return;
+    addAddress({ name: newName.trim(), phone: newPhone.trim(), address: newAddr.trim() });
+    setNewName(''); setNewPhone(''); setNewAddr('');
+    setShowAddressPrompt(false);
+    // Place order after saving address
+    setTimeout(() => doPlaceOrder(), 100);
+  };
+
+  const doPlaceOrder = () => {
     const orderItems = cartItems.map(c => {
       const p = getProduct(c.productId);
       return { productId: c.productId, quantity: c.quantity, priceUsd: p?.price || 0 };
     });
     placeOrder(orderItems, cartTotal);
-    // Clear cart
     cartItems.forEach(c => removeFromCart(c.productId));
     navigate('/order-success');
+  };
+
+  const handleCheckout = () => {
+    requireAuth(() => proceedToCheckout());
   };
 
   return (
@@ -138,6 +170,38 @@ export default function Cart() {
           </div>
         </div>
       )}
+
+      {/* Address prompt modal */}
+      {showAddressPrompt && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/40 backdrop-blur-sm px-4"
+          onClick={() => setShowAddressPrompt(false)}>
+          <motion.div initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }}
+            className="w-full max-w-sm rounded-2xl bg-card p-6 card-shadow space-y-4"
+            onClick={e => e.stopPropagation()}>
+            <div>
+              <h2 className="text-lg font-bold text-card-foreground flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" /> Add Delivery Address
+              </h2>
+              <p className="text-sm text-muted-foreground">Add an address before placing your order</p>
+            </div>
+            <input placeholder="Full name" value={newName} onChange={e => setNewName(e.target.value)}
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input placeholder="Phone number" value={newPhone} onChange={e => setNewPhone(e.target.value)}
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            <input placeholder="Full address" value={newAddr} onChange={e => setNewAddr(e.target.value)}
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            <div className="flex gap-2">
+              <button onClick={handleSaveAddress}
+                className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground">Save & Order</button>
+              <button onClick={() => setShowAddressPrompt(false)}
+                className="flex-1 rounded-lg bg-secondary py-2.5 text-sm font-medium text-secondary-foreground">Cancel</button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      <LoginModal open={showLogin} onClose={onLoginClose} onSuccess={onLoginSuccess} />
     </div>
   );
 }
