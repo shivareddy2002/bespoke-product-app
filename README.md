@@ -1,73 +1,53 @@
-# Welcome to your Lovable project
+<p align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11998e,100:38ef7d&height=180&section=header&text=Bespoke%20Product%20App%20-%20Modern%20Commerce%20Experience&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=35" />
+</p>
 
-## Project info
+A modern **API-driven e-commerce application** that simulates a real mobile shopping experience with product discovery, filtering, cart management, optional authentication, and persistent user state.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Built to demonstrate **production-style commerce architecture, scalable state management, and responsive UI design**.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use Lovable**
+- 🛍️ Product browsing & discovery  
+- 🔎 Search, filtering & sorting  
+- ❤️ Favorites & 🛒 Cart management  
+- 🔐 Optional authentication (guest-friendly)  
+- 💾 Persistent user state  
+- 📱 Responsive grid layout  
+- 💸 Discount & pricing system  
+- 🧠 Global state synchronization  
 
-Simply visit the [Lovable Project](https://store-vibe-56.lovable.app/) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🏗️ Technical Architecture
 
-**Use your preferred IDE**
+1️⃣ **Data Layer**  
+API product dataset + local persistence.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+2️⃣ **State Layer**  
+Centralized global state (Provider-style).
 
-The only requirement is having Node.js & npm installed 
+3️⃣ **UI Layer**  
+Reusable components & responsive layouts.
 
-Follow these steps:
+4️⃣ **Persistence Layer**  
+Cart, favorites & session stored locally.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+5️⃣ **Authentication Layer**  
+Optional login (guest → authenticated).
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🧭 Application Flow
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```mermaid
+flowchart LR
+    A[Browse Products] --> B[Search / Filter]
+    B --> C[View Product]
+    C --> D[Add to Cart / Favorites]
+    D --> E[Persist State]
+    E --> F[Optional Login]
+    F --> G[Continue Shopping]
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://store-vibe-56.lovable.app/) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
