@@ -51,3 +51,53 @@ flowchart LR
     E --> F[Optional Login]
     F --> G[Continue Shopping]
 ```
+## 🖥️ User Experience
+
+- Sectioned commerce homepage  
+- Hero deals & featured products  
+- Sticky add-to-cart actions  
+- Filter & sort toolbar  
+- Recently viewed section  
+- Cart savings display  
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|------|-----------|
+Frontend | Flutter UI / Responsive Layout |
+State | Provider / Context Pattern |
+Data | REST API Products |
+Persistence | Local Storage |
+Auth | Simulated OTP / Email |
+Deployment | Vercel (Web Build) |
+
+---
+
+## ⚙️ Workflow & Logic
+
+### 1️⃣ Product Loading
+- Fetch products from API  
+- Convert USD → INR  
+- Generate persistent discounts  
+
+### 2️⃣ Global State
+Centralized state includes:
+
+- products & filtered list  
+- search & filters  
+- cart & quantities  
+- favorites  
+- browsing history  
+- auth session  
+
+### 3️⃣ Filtering Pipeline
+
+```mermaid
+flowchart LR
+    A[Products] --> B[Category Filter]
+    B --> C[Price Filter]
+    C --> D[Search]
+    D --> E[Sorting]
+```
