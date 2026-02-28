@@ -18,23 +18,8 @@ async function fetchWithTimeout(url: string, timeout: number): Promise<Response>
 }
 
 function expandProducts(products: Product[]): Product[] {
-  const expanded = [...products];
-  const prefixes = ['Premium', 'Classic', 'Modern', 'Luxury', 'Essential'];
-  let nextId = 100;
-  
-  products.forEach(p => {
-    for (let i = 0; i < 2; i++) {
-      expanded.push({
-        ...p,
-        id: nextId++,
-        title: `${prefixes[i % prefixes.length]} ${p.title}`,
-        price: +(p.price * (0.7 + Math.random() * 0.6)).toFixed(2),
-        rating: { rate: +(3.5 + Math.random() * 1.5).toFixed(1), count: Math.floor(50 + Math.random() * 500) },
-      });
-    }
-  });
-  
-  return expanded;
+  // No duplication — return original unique products only
+  return products;
 }
 
 export async function fetchProducts(): Promise<Product[]> {

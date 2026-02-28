@@ -26,14 +26,16 @@ export function saveLiked(ids: Set<number>) { saveSet(KEYS.liked, ids); }
 export function loadDisliked(): Set<number> { return getSet(KEYS.disliked); }
 export function saveDisliked(ids: Set<number>) { saveSet(KEYS.disliked, ids); }
 
-export function loadHistory(): HistoryEntry[] {
+export function loadHistory(userId?: string): HistoryEntry[] {
   try {
-    const data = localStorage.getItem(KEYS.history);
+    const key = userId ? `${KEYS.history}_${userId}` : KEYS.history;
+    const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : [];
   } catch { return []; }
 }
-export function saveHistory(entries: HistoryEntry[]) {
-  localStorage.setItem(KEYS.history, JSON.stringify(entries));
+export function saveHistory(entries: HistoryEntry[], userId?: string) {
+  const key = userId ? `${KEYS.history}_${userId}` : KEYS.history;
+  localStorage.setItem(key, JSON.stringify(entries));
 }
 
 export function loadCart(): CartItem[] {
