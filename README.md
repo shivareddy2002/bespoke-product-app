@@ -199,6 +199,6 @@ The project showcases production-style UI patterns, scalable data flow, and reus
 
 ---
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11998e,100:38ef7d&height=180&section=footer&text=⭐%20If%20you%20found%20this%20project%20useful,%20consider%20starring!&fontSize=16&fontColor=ffffff&animation=fadeIn&fontAlignY=55" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11998e,100:38ef7d&height=150&section=footer" />
 </p>
 
