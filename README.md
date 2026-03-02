@@ -7,6 +7,15 @@ A modern **API-driven e-commerce application** that simulates a real mobile shop
 Built to demonstrate **production-style commerce architecture, scalable state management, and responsive UI design**.
 
 ---
+## 🔗 Live Demo  
+<p align="center">🚀 Visit <strong>Beespoke product app</strong></p>
+<p align="center">
+  <a href="store-vibe-56.vercel.app">
+    <img src="https://img.shields.io/badge/-Project%20DEMO-success?logo=streamlit&logoColor=white&color=ff4b4b&style=for-the-badge" alt="Streamlit App" height="50">
+  </a>
+</p>
+
+---
 
 ## 🚀 Features
 
