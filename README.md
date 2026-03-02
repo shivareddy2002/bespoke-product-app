@@ -7,10 +7,14 @@ A modern **API-driven e-commerce application** that simulates a real mobile shop
 Built to demonstrate **production-style commerce architecture, scalable state management, and responsive UI design**.
 
 ---
+
 ## 🔗 Live Demo  
 <p align="center">
-  🚀 Visit <strong><a href="https://store-vibe-56.vercel.app/">Beespoke Product App</a></strong>
+  <a href="https://store-vibe-56.vercel.app/">
+    <img src="https://img.shields.io/badge/🚀%20Visit-Beespoke%20Product%20App-blue?style=for-the-badge">
+  </a>
 </p>
+
 ---
 
 ## 🚀 Features
