@@ -10,7 +10,8 @@ Built to demonstrate **production-style commerce architecture, scalable state ma
 ## 🔗 Live Demo  
 <p align="center">🚀 Visit <strong>Beespoke product app</strong></p>
 <p align="center">
-  <a href="store-vibe-56.vercel.app">
+  <a href="https://store-vibe-56.vercel.app/">
+    
   </a>
 </p>
 
